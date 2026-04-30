@@ -1,0 +1,91 @@
+{
+  "name": "FAQ HTTP Search Tool",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.workflowTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 300],
+      "id": "trigger",
+      "name": "When called"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "text-embedding-3-small",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [450, 300],
+      "id": "embed",
+      "name": "Create Embedding",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_API",
+          "name": "OpenAI Credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract embedding from LangChain node\nconst embedding = $input.first().json.text || $input.first().json.embedding;\n\nreturn [{ json: { embedding: embedding } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [550, 300],
+      "id": "convert",
+      "name": "Convert Embedding"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://your-qdrant-host.com/collections/YOUR_COLLECTION/points/search",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "query", "value": "={{ $json.embedding }}" },
+            { "name": "limit", "value": "3" },
+            { "name": "with_payload", "value": "true" }
+          ]
+        },
+        "options": { "timeout": 15000 },
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "api-key", "value": "YOUR_QDRANT_API_KEY" }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 300],
+      "id": "qdrant",
+      "name": "Search Qdrant"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract answer from Qdrant results\nconst results = $input.all();\n\ntry {\n  const response = results[0]?.json;\n  const points = response?.result || [];\n  \n  if (!points || points.length === 0) {\n    return [{ json: { answer: 'I could not find an answer to your question.' } }];\n  }\n  \n  const answer = points[0]?.payload?.pageContent || points[0]?.payload?.answer || '';\n  \n  if (answer) {\n    return [{ json: { answer: answer } }];\n  }\n  \n  return [{ json: { answer: 'I found some information but could not extract the answer.' } }];\n} catch(e) {\n  return [{ json: { answer: 'An error occurred: ' + e.message } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "id": "extract",
+      "name": "Get Answer"
+    }
+  ],
+  "connections": {
+    "When called": { "main": [[{ "node": "Create Embedding", "type": "main", "index": 0 }]] },
+    "Create Embedding": { "main": [[{ "node": "Convert Embedding", "type": "main", "index": 0 }]] },
+    "Convert Embedding": { "main": [[{ "node": "Search Qdrant", "type": "main", "index": 0 }]] },
+    "Search Qdrant": { "main": [[{ "node": "Get Answer", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "id": "faq-http-tool",
+  "tags": [{"id": "faq", "name": "FAQ"}]
+}
