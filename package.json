@@ -2,10 +2,10 @@
   "name": "demo-chatbot-webserver",
   "version": "1.0.0",
   "description": "Webserver for n8n RAG chatbot hosting",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
   },
   "keywords": [
     "n8n",
