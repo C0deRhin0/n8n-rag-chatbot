@@ -1,6 +1,28 @@
 # n8n RAG Chatbot
 
-A small production-ready chatbot stack built around n8n workflows, Qdrant retrieval, OpenAI embeddings, and a lightweight Node.js proxy/UI host.
+A small chatbot reference stack built around n8n workflows, Qdrant retrieval, OpenAI embeddings, and a lightweight Node.js proxy/UI host.
+
+## Retrieval behind a small web boundary
+
+The Node server hosts the widget and proxies chat requests; n8n owns the model workflow. FAQ ingestion is a separate maintenance step.
+
+```mermaid
+flowchart LR
+F["FAQ source"]:::source --> I["Python ingestion<br/>OpenAI embeddings"]:::process
+    I --> Q[("Qdrant<br/>faq-collection")]:::store
+    U["Browser chat widget"]:::source --> N["Node HTTP proxy<br/>limits and timeout"]:::process
+    N --> W["n8n webhook<br/>chat workflow"]:::process
+    Q --> W
+    W --> A["Model response"]:::result
+    A --> N
+    classDef source fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+    classDef process fill:#ede9fe,stroke:#7c3aed,color:#3b0764
+    classDef store fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef review fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef result fill:#f1f5f9,stroke:#475569,color:#0f172a
+```
+
+For a UI-only inspection, run `HOST=127.0.0.1 PORT=3000 npm start` without submitting a chat request. End-to-end answers require the imported workflows, configured credentials, and a reachable n8n webhook. See [architecture notes](docs/architecture.md).
 
 ## Architecture
 
