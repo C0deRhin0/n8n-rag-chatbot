@@ -114,4 +114,3 @@ The FAQ ingestion script and the primary workflow both use the Qdrant collection
 ## License
 
 ISC
-<!-- Clarify implementation notes for project documentation -->
