@@ -114,3 +114,13 @@ The FAQ ingestion script and the primary workflow both use the Qdrant collection
 ## License
 
 ISC
+
+## Captures
+
+Running FAQ widget. No upstream chat request sent.
+
+![Running app · FAQ chat widget; no upstream request sent](docs/screenshots/chat-widget.webp)
+
+![Running app · responsive FAQ widget](docs/screenshots/chat-mobile.webp)
+
+Full capture descriptions and provenance: [captures.json](docs/screenshots/captures.json).

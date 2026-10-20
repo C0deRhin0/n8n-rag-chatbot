@@ -1,0 +1,20 @@
+{
+  "project": "n8n RAG Chatbot",
+  "kind": "Interface",
+  "note": "Running FAQ widget. No upstream chat request sent.",
+  "capturedAt": "2026-10-23T05:34:49.737Z",
+  "screens": [
+    {
+      "file": "chat-widget.webp",
+      "caption": "Running app · FAQ chat widget; no upstream request sent",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "chat-mobile.webp",
+      "caption": "Running app · responsive FAQ widget",
+      "width": 390,
+      "height": 844
+    }
+  ]
+}
